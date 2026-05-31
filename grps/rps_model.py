@@ -64,7 +64,7 @@ class RPSModel(mesa.Model):
         self,
         dim: int,
         policies: dict[str, EvolutionPolicy],
-        initial_invasions: Sequence[float] | None = None,
+        initial_invasions: Sequence[float],
         rng: "RNGLike | SeedLike | None" = None,
     ) -> None:
         super().__init__(rng=rng)
@@ -80,15 +80,7 @@ class RPSModel(mesa.Model):
         # ------------------------------------------------------------------
         cells = list(self.grid.all_cells)
         species_list = self.random.choices(self.SPECIES, k=n)
-
-        invasion_list: Sequence[float]
-
-        if initial_invasions is None:
-            invasion_list = [self.random.uniform(0.0, 1.0) for _ in range(n)]
-        else:
-            invasion_list = [
-                initial_invasions[self.SPECIES.index(s)] for s in species_list
-            ]
+        invasion_list = [initial_invasions[self.SPECIES.index(s)] for s in species_list]
 
         RPSAgent.create_agents(
             model=self,
@@ -125,10 +117,6 @@ class RPSModel(mesa.Model):
         followed by aging all agents by one step.  Data are collected at the
         beginning of each epoch (i.e. before the hunts).
         """
-        self.datacollector.collect(self)
-        self._log_epoch()
-        self.epoch += 1
-
         # Randomly activate agents (with replacement, as in the reference paper)
         for _ in range(self.epoch_length):
             ind = self.random.choice(self.agents)
@@ -137,10 +125,16 @@ class RPSModel(mesa.Model):
         # Every agent ages by 1 at the end of the epoch
         self.agents.do("get_older")
 
-    def run_for(self, duration: float | int) -> None:
+    def run_for(self, duration: float | int, verbose: bool = False) -> None:
         """Run the model for `duration` epochs."""
         assert isinstance(duration, int)
         for _ in range(duration):
+            self.datacollector.collect(self)
+
+            if verbose:
+                self._log_epoch()
+
+            self.epoch += 1
             self.step()
 
     # ------------------------------------------------------------------

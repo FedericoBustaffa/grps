@@ -26,5 +26,8 @@ where = ["."]
 
 [dependency-groups]
 dev = [
+    "ipykernel>=7.2.0",
+    "jupyterlab>=4.5.7",
+    "notebook>=7.5.6",
     "pyqt6>=6.11.0",
 ]
