@@ -1,0 +1,9 @@
+[
+    {
+        "grid_dim": 50,
+        "invasions": [0.5, 0.5, 0.5],
+        "policies": ["stochastic", "stochastic", "stochastic"],
+        "sigma": 0.05,
+        "epochs": 500
+    }
+]

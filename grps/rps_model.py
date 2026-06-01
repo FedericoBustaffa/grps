@@ -105,8 +105,19 @@ class RPSModel(mesa.Model):
             "R_age": partial(specie_age, "rock"),
             "P_age": partial(specie_age, "paper"),
             "S_age": partial(specie_age, "scissors"),
+            "epoch": lambda _: self.epoch,
         }
-        self.datacollector = mesa.DataCollector(model_reporters=model_reporters)
+
+        agent_reporters = {
+            "specie": lambda a: a.specie,
+            "age": lambda a: a.age,
+            "invasion": lambda a: a.invasion,
+        }
+
+        self.datacollector = mesa.DataCollector(
+            model_reporters=model_reporters,
+            agent_reporters=agent_reporters,
+        )
 
     # ------------------------------------------------------------------
     # Stepping

@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
     all_runs = []
     for params in configs:
-        print(params)
+        print(json.dumps(params, indent=2))
         policies = {}
         policies["rock"] = get_policy(params, 0)
         policies["paper"] = get_policy(params, 1)
@@ -52,6 +52,14 @@ if __name__ == "__main__":
             df = model.datacollector.get_model_vars_dataframe()
             df["seed"] = seed
             df["grid_dim"] = params["grid_dim"]
+
+            df["R_init_invasion"] = params["invasions"][0]
+            df["P_init_invasion"] = params["invasions"][1]
+            df["S_init_invasion"] = params["invasions"][2]
+
+            df["R_policy"] = params["policies"][0]
+            df["P_policy"] = params["policies"][1]
+            df["S_policy"] = params["policies"][2]
 
             if "sigma" in params.keys():
                 df["sigma"] = params["sigma"]
