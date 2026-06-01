@@ -1,86 +1,64 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.colors import ListedColormap
+import argparse
+import json
+
+import pandas as pd
 
 from grps import RPSModel
 from grps import evolution_policies as evo
 
+policy_mapping = {
+    "inheritance": evo.Inheritance,
+    "stochastic": evo.Stochastic,
+    "genetic": evo.Genetic,
+}
+
+
+def get_policy(params: dict, idx: int) -> evo.EvolutionPolicy:
+    p = params["policies"][idx]
+    if p == "inheritance":
+        return evo.Inheritance()
+    elif p == "stochastic":
+        return evo.Stochastic(sigma=params["sigma"])
+    else:
+        return evo.Genetic(sigma=params["sigma"], radius=params["radius"])
+
+
 if __name__ == "__main__":
-    radius = 25
-    policies = {
-        "rock": evo.Genetic(sigma=0.01, radius=radius),
-        "paper": evo.Stochastic(sigma=0.01),
-        "scissors": evo.Stochastic(sigma=0.01),
-    }
-    model = RPSModel(
-        dim=50,
-        policies=policies,
-        initial_invasions=[0.5, 0.5, 0.5],
-        rng=42,
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument("config", type=str, help="config file for the simulation")
+    args = parser.parse_args()
 
-    n_epochs = 100
-    model.run_for(n_epochs)
+    fp = open(args.config, "r")
+    configs = json.load(fp)
+    fp.close()
 
-    df = model.datacollector.get_model_vars_dataframe()
-    print(df)
+    all_runs = []
+    for params in configs:
+        print(params)
+        policies = {}
+        policies["rock"] = get_policy(params, 0)
+        policies["paper"] = get_policy(params, 1)
+        policies["scissors"] = get_policy(params, 2)
 
-    # Population density
-    plt.figure(dpi=150)
-    plt.title("Population Density")
-    plt.plot(df["R_density"], c="red", label="rock")
-    plt.plot(df["P_density"], c="blue", label="paper")
-    plt.plot(df["S_density"], c="green", label="scissors")
-    plt.xlabel("Epoch")
-    plt.ylabel("Count")
-    plt.grid(alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("population_density.png")
-    plt.show()
+        for seed in range(4):
+            model = RPSModel(
+                dim=params["grid_dim"],
+                policies=policies,
+                initial_invasions=params["invasions"],
+                rng=seed,
+            )
+            model.run_for(params["epochs"])
 
-    # Average invasion rate
-    plt.figure(dpi=150)
-    plt.title("Average Invasion Rate")
-    plt.plot(df["R_invasion"], c="red", label="rock")
-    plt.plot(df["P_invasion"], c="blue", label="paper")
-    plt.plot(df["S_invasion"], c="green", label="scissors")
-    plt.axhline(1.0, ls="--", c="gray", label="max invasion")
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean invasion probability")
-    plt.grid(alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("invasion_rate.png")
-    plt.show()
+            df = model.datacollector.get_model_vars_dataframe()
+            df["seed"] = seed
+            df["grid_dim"] = params["grid_dim"]
 
-    # Average age
-    plt.figure(dpi=150)
-    plt.title("Average Age")
-    plt.plot(df["R_age"], c="red", label="rock")
-    plt.plot(df["P_age"], c="blue", label="paper")
-    plt.plot(df["S_age"], c="green", label="scissors")
-    plt.xlabel("Epoch")
-    plt.ylabel("Mean age (epochs)")
-    plt.grid(alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("average_age.png")
-    plt.show()
+            if "sigma" in params.keys():
+                df["sigma"] = params["sigma"]
+            if "radius" in params.keys():
+                df["radius"] = params["radius"]
+            all_runs.append(df)
 
-    # Final grid state
-    color_map = {"rock": 0, "paper": 1, "scissors": 2}
-    grid_arr = np.full((model.grid.width, model.grid.height), -1)
-    for agent in model.agents:
-        x, y = agent.cell.coordinate
-        grid_arr[x, y] = color_map[agent.specie]
-
-    plt.figure(dpi=150)
-    plt.title("Final Grid State")
-    cmap = ListedColormap(["red", "blue", "green"])
-    im = plt.imshow(grid_arr.T, cmap=cmap, interpolation="nearest", origin="lower")
-    cbar = plt.colorbar(im, ticks=[0, 1, 2])
-    cbar.ax.set_yticklabels(["rock", "paper", "scissors"])
-    plt.tight_layout()
-    plt.savefig("final_grid.png")
-    plt.show()
+    result = pd.concat(all_runs, ignore_index=True)
+    filename = args.config.split("/")[1].split(".")[0]
+    result.to_csv(f"results/{filename}.csv", index=False, header=True)

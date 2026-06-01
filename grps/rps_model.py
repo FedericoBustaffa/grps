@@ -131,7 +131,7 @@ class RPSModel(mesa.Model):
         """Run the model for `duration` epochs."""
         assert isinstance(duration, int)
 
-        for _ in trange(duration):
+        for _ in trange(duration, ncols=80):
             self.datacollector.collect(self)
 
             if verbose:
