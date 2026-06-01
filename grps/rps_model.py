@@ -1,10 +1,11 @@
 from functools import partial
-from typing import Sequence
+from typing import Mapping, Sequence
 
 import mesa
 import numpy as np
 from mesa.discrete_space import OrthogonalMooreGrid
 from mesa.model import RNGLike, SeedLike
+from tqdm import trange
 
 from grps.evolution_policies import EvolutionPolicy
 from grps.rps_agent import RPSAgent
@@ -55,6 +56,7 @@ class RPSModel(mesa.Model):
         dim:      side length of the square grid (total agents = dim²).
         policies: mapping from species name to an :class:`EvolutionPolicy`
                   that determines the offspring's invasion rate.
+        initial_invasions: initial values of invasion probabilities for each specie
         rng:      seed or RNG for reproducibility.
     """
 
@@ -63,7 +65,7 @@ class RPSModel(mesa.Model):
     def __init__(
         self,
         dim: int,
-        policies: dict[str, EvolutionPolicy],
+        policies: Mapping[str, EvolutionPolicy],
         initial_invasions: Sequence[float],
         rng: "RNGLike | SeedLike | None" = None,
     ) -> None:
@@ -128,7 +130,8 @@ class RPSModel(mesa.Model):
     def run_for(self, duration: float | int, verbose: bool = False) -> None:
         """Run the model for `duration` epochs."""
         assert isinstance(duration, int)
-        for _ in range(duration):
+
+        for _ in trange(duration):
             self.datacollector.collect(self)
 
             if verbose:

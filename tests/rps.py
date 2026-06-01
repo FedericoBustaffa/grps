@@ -2,17 +2,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import ListedColormap
 
-from grps import EvolutionPolicy, Genetic, RPSModel
-from grps.evolution_policies import Stochastic
+from grps import RPSModel
+from grps import evolution_policies as evo
 
 if __name__ == "__main__":
     radius = 25
-    policies: dict[str, EvolutionPolicy] = {
-        "rock": Genetic(sigma=0.01, radius=radius),
-        "paper": Stochastic(sigma=0.01),
-        "scissors": Stochastic(sigma=0.01),
+    policies = {
+        "rock": evo.Genetic(sigma=0.01, radius=radius),
+        "paper": evo.Stochastic(sigma=0.01),
+        "scissors": evo.Stochastic(sigma=0.01),
     }
-    model = RPSModel(dim=50, policies=policies, rng=42)
+    model = RPSModel(
+        dim=50,
+        policies=policies,
+        initial_invasions=[0.5, 0.5, 0.5],
+        rng=42,
+    )
 
     n_epochs = 100
     model.run_for(n_epochs)
