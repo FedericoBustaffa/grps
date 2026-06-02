@@ -4,5 +4,5 @@
     "policies": ["genetic", "genetic", "genetic"],
     "sigma": 0.01,
     "radius": 10,
-    "epochs": 1000
+    "epochs": 2000
 }

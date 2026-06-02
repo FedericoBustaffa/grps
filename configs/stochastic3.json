@@ -3,5 +3,5 @@
     "invasions": [0.5, 0.5, 0.5],
     "policies": ["stochastic", "stochastic", "stochastic"],
     "sigma": 0.01,
-    "epochs": 1000
+    "epochs": 2000
 }
