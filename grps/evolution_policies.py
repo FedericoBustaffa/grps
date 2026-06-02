@@ -123,7 +123,7 @@ class Genetic(EvolutionPolicy):
                 continue
             for other in cell.agents:
                 if isinstance(other, _RPSAgent) and other.specie == agent.specie:
-                    candidates.append((other, dist))
+                    candidates.append(other)
 
         return candidates
 
@@ -141,13 +141,13 @@ class Genetic(EvolutionPolicy):
 
         # Compute un-normalised weights: fitness / distance
         # fitness = age + age_offset  (longevity as proxy for fitness)
-        weights = [(other.age + self.age_offset) / dist for other, dist in candidates]
+        weights = [(other.age + self.age_offset) for other in candidates]
         total = sum(weights)
         probs = [w / total for w in weights]
 
         # Sample a partner according to the computed distribution
         idx = agent.model.random.choices(range(len(candidates)), weights=probs, k=1)[0]
-        partner, _ = candidates[idx]
+        partner = candidates[idx]
 
         # Recombine: average of the two parents' invasion rates
         child_invasion = (agent.invasion + partner.invasion) / 2.0

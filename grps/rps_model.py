@@ -108,16 +108,7 @@ class RPSModel(mesa.Model):
             "epoch": lambda _: self.epoch,
         }
 
-        agent_reporters = {
-            "specie": lambda a: a.specie,
-            "age": lambda a: a.age,
-            "invasion": lambda a: a.invasion,
-        }
-
-        self.datacollector = mesa.DataCollector(
-            model_reporters=model_reporters,
-            agent_reporters=agent_reporters,
-        )
+        self.datacollector = mesa.DataCollector(model_reporters=model_reporters)
 
     # ------------------------------------------------------------------
     # Stepping

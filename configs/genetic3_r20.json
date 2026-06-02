@@ -1,10 +1,8 @@
-[
-    {
-        "grid_dim": 50,
-        "invasions": [0.5, 0.5, 0.5],
-        "policies": ["genetic", "genetic", "genetic"],
-        "sigma": 0.05,
-        "radius": 20,
-        "epochs": 500
-    }
-]
+{
+    "grid_dim": 75,
+    "invasions": [0.5, 0.5, 0.5],
+    "policies": ["genetic", "genetic", "genetic"],
+    "sigma": 0.01,
+    "radius": 20,
+    "epochs": 1000
+}
