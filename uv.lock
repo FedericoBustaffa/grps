@@ -2187,6 +2187,7 @@ dependencies = [
     { name = "pandas" },
     { name = "scipy" },
     { name = "seaborn" },
+    { name = "solara" },
     { name = "tqdm" },
 ]
 
@@ -2207,6 +2208,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=3.0.3" },
     { name = "scipy", specifier = ">=1.17.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
+    { name = "solara", specifier = ">=1.57.3" },
     { name = "tqdm", specifier = ">=4.67.3" },
 ]
 
