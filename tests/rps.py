@@ -26,6 +26,7 @@ def get_policy(params: dict, idx: int) -> evo.EvolutionPolicy:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("config", type=str, help="config file for the simulation")
+    parser.add_argument("seeds", type=int, help="number of simulation seeds")
     args = parser.parse_args()
 
     fp = open(args.config, "r")
@@ -39,14 +40,15 @@ if __name__ == "__main__":
     policies["paper"] = get_policy(params, 1)
     policies["scissors"] = get_policy(params, 2)
 
-    for seed in range(4):
+    filename = args.config.split("/")[1].split(".")[0]
+    for seed in range(args.seeds):
         model = RPSModel(
             dim=params["grid_dim"],
             policies=policies,
             initial_invasions=params["invasions"],
             rng=seed,
         )
-        model.run_for(params["epochs"])
+        model.run_for(params["epochs"], filename)
 
         model_df = model.datacollector.get_model_vars_dataframe()
 
@@ -69,4 +71,4 @@ if __name__ == "__main__":
 
     results = pd.concat(all_runs, ignore_index=True)
     filename = args.config.split("/")[1].split(".")[0]
-    results.to_csv(f"results/{filename}.csv", index=False, header=True)
+    # results.to_csv(f"results/{filename}.csv", index=False, header=True)

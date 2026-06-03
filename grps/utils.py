@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.colors import ListedColormap
 
 
 def plot_densities(data: pd.DataFrame) -> None:
@@ -149,3 +150,52 @@ def plot_orbits(df: pd.DataFrame):
 
     plt.tight_layout()
     plt.show()
+
+
+def save_grid(
+    model,
+    filename: str,
+    dpi: int = 200,
+) -> None:
+    """
+    Salva uno snapshot della griglia del modello.
+
+    rock     -> rosso
+    paper    -> blu
+    scissors -> verde
+    """
+
+    w, h = model.grid.width, model.grid.height
+
+    grid = np.zeros((h, w), dtype=np.uint8)
+
+    specie_to_id = {
+        "rock": 0,
+        "paper": 1,
+        "scissors": 2,
+    }
+
+    for cell in model.grid.all_cells:
+        x, y = cell.coordinate
+        agent = cell.agents[0]  # una sola entità per cella
+        grid[y, x] = specie_to_id[agent.specie]
+
+    cmap = ListedColormap(["red", "blue", "green"])
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.imshow(
+        grid,
+        cmap=cmap,
+        interpolation="nearest",
+        origin="lower",
+        vmin=0,
+        vmax=2,
+    )
+
+    ax.set_title(f"Epoch {model.epoch}")
+    ax.set_xticks([])
+    ax.set_yticks([])
+
+    plt.tight_layout()
+    plt.savefig(filename, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)

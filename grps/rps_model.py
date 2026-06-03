@@ -9,6 +9,7 @@ from tqdm import trange
 
 from grps.evolution_policies import EvolutionPolicy
 from grps.rps_agent import RPSAgent
+from grps.utils import save_grid
 
 # ---------------------------------------------------------------------------
 # Data-collector reporter functions
@@ -129,15 +130,27 @@ class RPSModel(mesa.Model):
         # Every agent ages by 1 at the end of the epoch
         self.agents.do("get_older")
 
-    def run_for(self, duration: float | int, verbose: bool = False) -> None:
+    def run_for(
+        self,
+        duration: float | int,
+        filename: str = "grid",
+        verbose: bool = False,
+    ) -> None:
         """Run the model for `duration` epochs."""
         assert isinstance(duration, int)
 
-        for _ in trange(duration, ncols=80):
+        for epoch in trange(duration, ncols=80):
             self.datacollector.collect(self)
 
             if verbose:
                 self._log_epoch()
+
+            if epoch == 0:
+                save_grid(self, f"images/{filename}_start.png")
+            if epoch == duration // 2:
+                save_grid(self, f"images/{filename}_mid.png")
+            if epoch == duration - 1:
+                save_grid(self, f"images/{filename}_end.png")
 
             self.epoch += 1
             self.step()
