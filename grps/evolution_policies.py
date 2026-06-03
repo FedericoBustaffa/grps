@@ -149,8 +149,14 @@ class Genetic(EvolutionPolicy):
         idx = agent.model.random.choices(range(len(candidates)), weights=probs, k=1)[0]
         partner = candidates[idx]
 
-        # Recombine: average of the two parents' invasion rates
-        child_invasion = (agent.invasion + partner.invasion) / 2.0
+        # Recombine: weighted average of the two parents' invasion rates
+        agent_age = agent.age + self.age_offset
+        partner_age = partner.age + self.age_offset
+        child_invasion = (
+            agent.invasion * agent_age + partner.invasion * partner_age
+        ) / (agent_age + partner_age)
+
         # Mutate
         mutation = agent.model.random.gauss(0, self.sigma)
+
         return float(np.clip(child_invasion + mutation, 0.0, 1.0))

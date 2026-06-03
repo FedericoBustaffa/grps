@@ -3,6 +3,6 @@
     "invasions": [0.5, 0.5, 0.5],
     "policies": ["genetic", "genetic", "genetic"],
     "sigma": 0.01,
-    "radius": 10,
+    "radius": 5,
     "epochs": 2000
 }
